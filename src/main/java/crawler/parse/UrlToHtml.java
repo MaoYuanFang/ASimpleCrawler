@@ -34,11 +34,12 @@ public class UrlToHtml {
         try {
             HtmlPage Page = webClient.getPage(url);
             webClient.waitForBackgroundJavaScript(5000);
-            webClient.close();
             return Page.asXml();
         } catch (IOException e) {
             e.printStackTrace();
+            return null;
+        }finally {
+            webClient.close();
         }
-        return null;
     }
 }

@@ -30,7 +30,7 @@ public class ParseHtml {
 
 
     public static void main(String[] args) throws IOException {
-        String url = "https://mil.sina.cn/zgjq/2019-10-02/detail-iicezzrq9745419.d.html?cre=tianyi&mod=whome&loc=14&r=25&rfunc=10&tj=cx_wap_whome&tr=188";
+        String url = "https://sina.cn";
         HashSet<String> set = new HashSet<>();
         set.add(url);
         HashSet<String> titleSet = new HashSet<>();
@@ -45,7 +45,7 @@ public class ParseHtml {
 
     private static boolean filter(String url) {
         return url.matches("http(.*).sina.cn/(.*)-(.*)-(.*)") && !url.matches("(.*)passport(.*)") &&
-                !url.matches("(.*)video(.*)");
+                !url.matches("(.*)video(.*)") && !url.matches("https://sa.sina.cn");
     }
 
     private static Document removeHtmlSpace(String str) {
@@ -55,72 +55,60 @@ public class ParseHtml {
     }
 
 
-    /*private static void init(HashSet<String> linkList, Queue<String> queue) throws IOException {
-        Document document = ;
-        String title = document.select("h1").text();
-        String parts = document.select("p").text();
-        if (!title.equals("")) {
-            //存储
-            System.out.println(title + "  " + url);
+
+
+
+    private static void parseU (HashSet<String> set, Queue<String> queue, HashSet<String> titleSet) throws IOException {
+        String url = queue.remove();
+        String html = new UrlToHtml(url).parse();
+        if (html != null) {
+            Document document = Jsoup.parse(html);
+            String title = document.select("h1").text();
+            String parts = document.select("p").text();
+            if ((!title.equals("") && !titleSet.contains(title)) || url.equals("https://sina.cn")) {
+                //存储
+                titleSet.add(title);
+                System.out.println(title + "  " + url);
+                selectUrl(set, queue, document);
+            }
         }
+        parseU(set, queue, titleSet);
+    }
+
+    private static void selectUrl(HashSet<String> set, Queue<String> queue, Document document) {
         Elements links = document.select("a");
         for (Element element : links) {
             String href = element.attr("href");
-            linkList.add(href);
-            if (filter(href)) {
+            if (filter(href) && !set.contains(href)) {
                 queue.add(href);
+                set.add(href);
+                //添加到库
+            }
+            String dataPclink = element.attr("data-pclink");
+            if (filter(dataPclink) && !set.contains(dataPclink)) {
+                queue.add(dataPclink);
+                set.add(dataPclink);
                 //添加到库
             }
         }
 
-        init(linkList, queue);
-        System.out.println("到底了");
-    }
-
-     */
-
-        private static void parseU (HashSet<String> set, Queue<String> queue, HashSet<String> titleSet) throws IOException {
-            String url = queue.remove();
-            String html = new UrlToHtml(url).parse();
-            Document document = Jsoup.parse(html);
-            String title = document.select("h1").text();
-            String parts = document.select("p").text();
-            if (!title.equals("") && !titleSet.contains(title)) {
-                //存储
-                titleSet.add(title);
-                System.out.println(title + "  " + url);
-            }else if (!title.equals("") && titleSet.contains(title)){
-                return;
-            }
-            Elements links = document.select("a");
-            for (Element element : links) {
-                String href = element.attr("href");
-                if (filter(href) && !set.contains(href)) {
-                    queue.add(href);
-                    set.add(href);
-                    //添加到库
-                }
-                String dataPclink = element.attr("data-pclink");
-                if (filter(dataPclink) && !set.contains(dataPclink)) {
-                    queue.add(dataPclink);
-                    set.add(dataPclink);
-                    //添加到库
-                }
-            }
-            Elements div = document.select("div");
-            for (Element element : div) {
-                String content = element.attr("data-content");
-                JsonContentOne one = JSON.parseObject(content,JsonContentOne.class);
-                if (one != null) {
-                    JSONArray jsonArray = JSON.parseArray(one.getDocs());
-                    for (int i = 0; i < jsonArray.size(); i++){
-                        JSONObject two = (JSONObject)jsonArray.get(i);
-                        String uri = two.getString("url");
+        Elements div = document.select("div");
+        for (Element element : div) {
+            String content = element.attr("data-content");
+            JsonContentOne one = JSON.parseObject(content,JsonContentOne.class);
+            if (one != null) {
+                JSONArray jsonArray = JSON.parseArray(one.getDocs());
+                for (int i = 0; i < jsonArray.size(); i++){
+                    JSONObject two = (JSONObject)jsonArray.get(i);
+                    String uri = two.getString("url");
+                    if (filter(uri) && !set.contains(uri)) {
+                        queue.add(uri);
+                        set.add(uri);
+                        //添加到库
                     }
-                    int a = 1;
                 }
             }
-            parseU(set,queue,titleSet);
         }
+    }
 
 }
