@@ -60,6 +60,10 @@
     <select id="findBy_Link" resultType="String">
         select *
         from crawler.links_solved
+        where link = #{String}
+        union
+        select *
+        from crawler.links_to_be_solved
         where link = #{String};
     </select>
 

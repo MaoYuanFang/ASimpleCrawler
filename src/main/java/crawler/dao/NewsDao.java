@@ -106,14 +106,13 @@ public class NewsDao {
      * @param link 要查询的链接
      * @return 含有该链接就返回true
      */
-    public boolean findByLink(String link) {
+    public synchronized boolean findByLink(String link) {
         SqlSession sqlSession = MybatisUtil.getSqlSession();
         try {
-            List<Object> result = sqlSession.selectList("News.findBy_Link", link);
+            List<String> result = sqlSession.selectList("News.findBy_Link", link);
             return result.size() != 0;
         } catch (Exception e) {
             e.printStackTrace();
-            sqlSession.rollback();
             return false;
         } finally {
             MybatisUtil.closeSqlSession();
