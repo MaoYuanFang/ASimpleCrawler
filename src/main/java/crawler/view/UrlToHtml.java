@@ -1,4 +1,4 @@
-package crawler.parse;
+package crawler.view;
 
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
@@ -9,15 +9,26 @@ import org.apache.commons.logging.LogFactory;
 import java.io.IOException;
 import java.util.logging.Level;
 
+
+/**
+ * 获取Html页面.
+ */
 public class UrlToHtml {
     private String url;
 
+    /**
+     * 传入需要解析链接.
+     */
     public UrlToHtml(String url) {
         this.url = url;
     }
 
 
-    public String parse(){
+    /**
+     * 解析链接.
+     * @return 返回解析的字符串结果
+     */
+    public String parse() {
         WebClient webClient = new WebClient(BrowserVersion.CHROME);
 //屏蔽日志信息
         LogFactory.getFactory().setAttribute("org.apache.commons.logging.Log",
@@ -30,15 +41,15 @@ public class UrlToHtml {
         webClient.getOptions().setThrowExceptionOnScriptError(false);
         webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
         webClient.setAjaxController(new NicelyResynchronizingAjaxController());
-        webClient.getOptions().setTimeout(5000);
+        webClient.getOptions().setTimeout(10000);
         try {
-            HtmlPage Page = webClient.getPage(url);
-            webClient.waitForBackgroundJavaScript(5000);
-            return Page.asXml();
+            HtmlPage page = webClient.getPage(url);
+            webClient.waitForBackgroundJavaScript(10000);
+            return page.asXml();
         } catch (IOException e) {
             e.printStackTrace();
             return null;
-        }finally {
+        } finally {
             webClient.close();
         }
     }
