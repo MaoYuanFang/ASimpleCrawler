@@ -15,21 +15,28 @@ public class Crawler {
      * 线程池对象.
      */
     private ExecutorService service;
+    /**
+     * 线程数量.
+     */
+    private int threadNumber;
 
     /**
-     * @param threadNub 线程数量
+     * @param threadNumber 线程数量
      */
-    public Crawler(final int threadNub) {
-        service = Executors.newFixedThreadPool(threadNub);
+    public Crawler(int threadNumber) {
+        this.threadNumber = threadNumber;
+        service = Executors.newFixedThreadPool(threadNumber);
     }
 
     /**
      * 往线程池提交任务.
      */
     public void start() {
-        service.submit(() -> {
-            ParseHtml parseHtml1 = new ParseHtml();
-            parseHtml1.parseUrl();
-        });
+        for (int i = 1; i < threadNumber; i++) {
+            service.submit(() -> {
+                ParseHtml parseHtml1 = new ParseHtml();
+                parseHtml1.parseUrl();
+            });
+        }
     }
 }

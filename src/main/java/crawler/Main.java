@@ -9,9 +9,8 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        for (int i = 0; i < 10; i++) {
-            new CrawlerThread().start();
-        }
+        Crawler crawler = new Crawler(10);
+        crawler.start();
 
     }
 }
