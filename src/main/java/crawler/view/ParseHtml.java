@@ -103,8 +103,14 @@ public class ParseHtml {
         String content;
         if (url.matches("(.*)cj.sina(.*)")) {
             content = document.select("[class=article-content-left]").select("[id=artibody]").text();
+            if (content.equals("")){
+                content = document.select("[class=art_pic_cadocker volume lsrd art_content]").text();
+            }
         } else {
             content = document.select("[class=art_pic_card art_content]").text();
+        }
+        if (content.equals("")){
+            content = document.select("p").text();
         }
         news.setContent(content);
         return news;
