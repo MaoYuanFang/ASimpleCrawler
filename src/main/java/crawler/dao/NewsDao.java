@@ -40,8 +40,12 @@ public class NewsDao {
     public void add_link_to_be_solved(String link) {
         SqlSession sqlSession = MybatisUtil.getSqlSession();
         try {
-            sqlSession.insert("News.links_to_be_solved_add", link);
-            sqlSession.commit();
+            synchronized (LOCK) {
+                if (sqlSession.selectList("findBy_Link", link).size() == 0) {
+                    sqlSession.insert("News.links_to_be_solved_add", link);
+                    sqlSession.commit();
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
             sqlSession.rollback();
@@ -72,27 +76,6 @@ public class NewsDao {
             e.printStackTrace();
             sqlSession.rollback();
             throw e;
-        } finally {
-            MybatisUtil.closeSqlSession();
-        }
-    }
-
-    /**
-     * 查询链接表是否有该链接.
-     *
-     * @param link 要查询的链接
-     * @return 含有该链接就返回true
-     */
-    public static boolean findByLink(String link) {
-        SqlSession sqlSession = MybatisUtil.getSqlSession();
-        try {
-            synchronized (LOCK) {
-                List<String> result = sqlSession.selectList("findBy_Link", link);
-                return result.size() == 0;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
         } finally {
             MybatisUtil.closeSqlSession();
         }

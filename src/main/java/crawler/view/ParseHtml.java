@@ -52,7 +52,7 @@ public class ParseHtml {
      * @param url 待添加链接
      */
     private void addToDatabase(String url) {
-        if (getNews_type(url) != 0 && NewsDao.findByLink(url)) {
+        if (getNews_type(url) != 0) {
             newsDao.add_link_to_be_solved(url);
         }
     }
