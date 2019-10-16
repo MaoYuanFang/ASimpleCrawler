@@ -11,7 +11,7 @@ import java.io.Reader;
 /**
  * mybatis管理.
  */
-public final class MybatisUtil {
+class MybatisUtil {
 
     /**
      * 当前线程的数据库会话管理.
@@ -44,7 +44,7 @@ public final class MybatisUtil {
     /**
      * @return 获取一个绑定的SqlSession.
      */
-    public static SqlSession getSqlSession() {
+    static SqlSession getSqlSession() {
         //从当前线程中获取SqlSession对象
         SqlSession sqlSession = threadLocal.get();
         //如果SqlSession对象为空
@@ -60,7 +60,7 @@ public final class MybatisUtil {
     /**
      * 关闭SqlSession与当前线程分开.
      */
-    public static void closeSqlSession() {
+    static void closeSqlSession() {
         //从当前线程中获取SqlSession对象
         SqlSession sqlSession = threadLocal.get();
         //如果SqlSession对象非空

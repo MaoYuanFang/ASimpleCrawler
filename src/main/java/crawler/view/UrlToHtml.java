@@ -13,22 +13,23 @@ import java.util.logging.Level;
 /**
  * 获取Html页面.
  */
-public class UrlToHtml {
+class UrlToHtml {
     private String url;
 
     /**
      * 传入需要解析链接.
      */
-    public UrlToHtml(String url) {
+    UrlToHtml(String url) {
         this.url = url;
     }
 
 
     /**
      * 解析链接.
+     *
      * @return 返回解析的字符串结果
      */
-    public String parse() {
+    String parse() {
         WebClient webClient = new WebClient(BrowserVersion.CHROME);
 //屏蔽日志信息
         LogFactory.getFactory().setAttribute("org.apache.commons.logging.Log",
