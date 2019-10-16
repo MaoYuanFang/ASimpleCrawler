@@ -41,10 +41,10 @@ public class UrlToHtml {
         webClient.getOptions().setThrowExceptionOnScriptError(false);
         webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
         webClient.setAjaxController(new NicelyResynchronizingAjaxController());
-        webClient.getOptions().setTimeout(10000);
+        webClient.getOptions().setTimeout(5000);
         try {
             HtmlPage page = webClient.getPage(url);
-            webClient.waitForBackgroundJavaScript(10000);
+            webClient.waitForBackgroundJavaScript(5000);
             return page.asXml();
         } catch (IOException e) {
             e.printStackTrace();

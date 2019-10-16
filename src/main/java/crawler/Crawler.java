@@ -32,10 +32,10 @@ public class Crawler {
      * 往线程池提交任务.
      */
     public void start() {
-        for (int i = 1; i < threadNumber; i++) {
+        for (int i = 0; i < threadNumber; i++) {
             service.submit(() -> {
-                ParseHtml parseHtml1 = new ParseHtml();
-                parseHtml1.parseUrl();
+                ParseHtml parseHtml = new ParseHtml();
+                parseHtml.parseUrl();
             });
         }
     }

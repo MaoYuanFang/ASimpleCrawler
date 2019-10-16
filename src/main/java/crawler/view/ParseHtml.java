@@ -3,6 +3,7 @@ package crawler.view;
 
 import crawler.dao.News;
 import crawler.dao.NewsDao;
+import crawler.dao.SingleNewsDao;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -18,29 +19,40 @@ public class ParseHtml {
     /**
      * 绑定数据层访问对象.
      */
-    private NewsDao newsDao = new NewsDao();
+    private NewsDao newsDao = SingleNewsDao.getInstance();
 
     /**
      * 网页的过滤规则.
      *
      * @param url 传入待筛选的链接
-     * @return 符合规则返回true
+     * @return 返回表中对应的新闻类型的主键，其他索引页返回7，都不符合的返回0
      */
-    private boolean filter(String url) {
-        return url.matches("http(.*)//cj.sina(.*)") || url.matches("http(.*)//news.sina(.*)")
-                || url.matches("http(.*)//finance.sina(.*)") || url.matches("http(.*)//sports.sina(.*)")
-                || url.matches("http(.*)//ent.sina(.*)") || url.matches("http(.*)//mil.sina(.*)")
-                || url.matches("http(.*)//tech.sina(.*)") || url.matches("http(.*)//nba.sina(.*)")
-                || url.matches("https://sina(.*)");
+    private int getNews_type(String url) {
+        if (url.matches("http(.*)//cj.sina(.*)") || url.matches("http(.*)//finance.sina(.*)")) {
+            return 3;
+        } else if (url.matches("http(.*)//news.sina(.*)")) {
+            return 1;
+        } else if (url.matches("http(.*)//sports.sina(.*)") || url.matches("http(.*)//nba.sina(.*)")) {
+            return 5;
+        } else if (url.matches("http(.*)//ent.sina(.*)")) {
+            return 2;
+        } else if (url.matches("http(.*)//mil.sina(.*)")) {
+            return 4;
+        } else if (url.matches("http(.*)//tech.sina(.*)")) {
+            return 6;
+        } else if (url.matches("https://sina(.*)")) {
+            return 7;
+        }
+        return 0;
     }
 
     /**
-     * 待处理链接添加到库.
+     * 待处理链接添加到表.
      *
      * @param url 待添加链接
      */
     private void addToDatabase(String url) {
-        if (filter(url) && !newsDao.findByLink(url)) {
+        if (getNews_type(url) != 0 && NewsDao.findByLink(url)) {
             newsDao.add_link_to_be_solved(url);
         }
     }
@@ -89,8 +101,8 @@ public class ParseHtml {
     /**
      * 根据url在document里筛选出title、content，然后给News对象赋4个值，并返回.
      *
-     * @param document doc对象
-     * @param url 链接属性
+     * @param document  doc对象
+     * @param url       链接属性
      * @param timestamp 日期属性
      * @return 返回新闻对象
      */
@@ -100,16 +112,17 @@ public class ParseHtml {
         news.setTitle(title);
         news.setDate(timestamp);
         news.setUrl(url);
+        news.setNews_type(getNews_type(url));
         String content;
         if (url.matches("(.*)cj.sina(.*)")) {
             content = document.select("[class=article-content-left]").select("[id=artibody]").text();
-            if (content.equals("")){
+            if (content.equals("")) {
                 content = document.select("[class=art_pic_cadocker volume lsrd art_content]").text();
             }
         } else {
             content = document.select("[class=art_pic_card art_content]").text();
         }
-        if (content.equals("")){
+        if (content.equals("")) {
             content = document.select("p").text();
         }
         news.setContent(content);
@@ -122,13 +135,12 @@ public class ParseHtml {
      * 从数据库读取链接、处理链接、获取新闻、保存新闻、筛选链接、保存链接，然后循环处理.
      */
     public void parseUrl() {
-        String url = null;
+        String url = NewsDao.processLink();
         while (url == null) {
-            url = newsDao.processLink();
+            url = NewsDao.processLink();
         }
         String html = new UrlToHtml(url).parse();
         if (html != null) {
-            newsDao.add_link_solved(url);
             Document document = Jsoup.parse(html);
             String time = getTime(document);
             boolean indexPage = true;
@@ -136,7 +148,8 @@ public class ParseHtml {
                 indexPage = false;
                 Timestamp timestamp = parseTime(time);
                 News news = getNews(document, url, timestamp);
-                newsDao.addNews(news, url);
+                newsDao.addNews(news);
+
             }
             if (indexPage) {
                 if (url.matches("(.*)finance.sina(.*)")) {
@@ -157,10 +170,11 @@ public class ParseHtml {
 
     /**
      * 从doc中根据关键词获取相关链接.
+     *
      * @param document doc对象
-     * @param select 选择标签
-     * @param attr1 选择获取属性1
-     * @param attr2 选择获取属性2
+     * @param select   选择标签
+     * @param attr1    选择获取属性1
+     * @param attr2    选择获取属性2
      */
     private void selectUrl(Document document, String select, String attr1, String attr2) {
         Elements links = document.select(select);
@@ -173,7 +187,6 @@ public class ParseHtml {
                 addToDatabase(url2);
             }
         }
-
     }
 
 }

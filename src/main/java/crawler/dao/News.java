@@ -29,11 +29,15 @@ public class News {
     /**
      * 数据创建日期.
      */
-    private Timestamp createdDate;
+    private Timestamp created_date;
     /**
      * 数据修改日期.
      */
-    private Timestamp modifiedDate;
+    private Timestamp modified_date;
+    /**
+     * 新闻类型归属.
+     */
+    private int news_type;
 
     /**
      * 创建空的对象，设置、标题、内容、日期、链接即可.
@@ -84,19 +88,27 @@ public class News {
         this.url = url;
     }
 
-    public Timestamp getCreatedDate() {
-        return createdDate;
+    public Timestamp getCreated_date() {
+        return created_date;
     }
 
-    public void setCreatedDate(Timestamp createdDate) {
-        this.createdDate = createdDate;
+    public void setCreated_date(Timestamp created_date) {
+        this.created_date = created_date;
     }
 
-    public Timestamp getModifiedDate() {
-        return modifiedDate;
+    public Timestamp getModified_date() {
+        return modified_date;
     }
 
-    public void setModifiedDate(Timestamp modifiedDate) {
-        this.modifiedDate = modifiedDate;
+    public void setModified_date(Timestamp modified_date) {
+        this.modified_date = modified_date;
+    }
+
+    public int getNews_type() {
+        return news_type;
+    }
+
+    public void setNews_type(int news_type) {
+        this.news_type = news_type;
     }
 }

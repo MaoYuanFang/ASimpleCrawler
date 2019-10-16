@@ -22,25 +22,26 @@
         <result property="url" column="url"/>
         <result property="created_date" column="created_date"/>
         <result property="modified_date" column="modified_date"/>
+        <result property="news_type" column="news_type"/>
     </resultMap>
 
-    <insert id="news_add" parameterType="crawler.dao.News">
-        INSERT INTO crawler.news (title, content, date, url)
-        VALUES (#{title}, #{content}, #{date}, #{url});
-    </insert>
+    <select id="all_news" resultMap="newsMap">
+        select *
+        from crawler.news
 
-    <select id="findByTitle" parameterType="String" resultType="crawler.dao.News">
-        SELECT *
-        FROM crawler.news
-        where title = #{title};
     </select>
 
-    <insert id="links_solved_add" parameterType="String">
+    <insert id="news_add" parameterType="crawler.dao.News">
+        INSERT INTO crawler.news (title, content, date, url, news_type)
+        VALUES (#{title}, #{content}, #{date}, #{url}, #{news_type});
+    </insert>
+
+    <insert id="links_solved_add">
         insert into crawler.links_solved
         values (#{link});
     </insert>
 
-    <insert id="links_to_be_solved_add" parameterType="String">
+    <insert id="links_to_be_solved_add">
         insert into crawler.links_to_be_solved
         values (#{link});
     </insert>
@@ -48,7 +49,7 @@
     <select id="get_link" resultType="String">
         select *
         from crawler.links_to_be_solved
-        limit 0,1;
+        limit 1;
     </select>
 
     <delete id="delete_link">
@@ -57,39 +58,20 @@
         limit 1;
     </delete>
 
-    <select id="findBy_Link" resultType="String">
+    <select id="findBy_Link"  resultType="String">
         select *
         from crawler.links_solved
-        where link = #{String}
+        where link = #{link}
         union
         select *
         from crawler.links_to_be_solved
-        where link = #{String};
+        where link = #{link}
     </select>
 
-    <insert id="ent_news_add" parameterType="crawler.dao.News">
-        INSERT INTO crawler.ent_news (title, content, date, url)
-        VALUES (#{title}, #{content}, #{date}, #{url});
-    </insert>
-
-    <insert id="finance_news_add" parameterType="crawler.dao.News">
-        INSERT INTO crawler.finance_news (title, content, date, url)
-        VALUES (#{title}, #{content}, #{date}, #{url});
-    </insert>
-
-    <insert id="mil_news_add" parameterType="crawler.dao.News">
-        INSERT INTO crawler.mil_news (title, content, date, url)
-        VALUES (#{title}, #{content}, #{date}, #{url});
-    </insert>
-
-    <insert id="sports_news_add" parameterType="crawler.dao.News">
-        INSERT INTO crawler.sports_news (title, content, date, url)
-        VALUES (#{title}, #{content}, #{date}, #{url});
-    </insert>
-
-    <insert id="tech_news_add" parameterType="crawler.dao.News">
-        INSERT INTO crawler.tech_news (title, content, date, url)
-        VALUES (#{title}, #{content}, #{date}, #{url});
-    </insert>
+    <select id="findBy_Title" resultType="String">
+        select title
+        from crawler.news
+        where title = #{title};
+    </select>
 </mapper>
 
