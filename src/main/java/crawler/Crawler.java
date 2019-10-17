@@ -39,4 +39,16 @@ class Crawler {
             });
         }
     }
+
+    /**
+     * 只读取新闻，不取链接
+     */
+    void justRead(){
+        for (int i = 0; i < threadNumber; i++) {
+            service.submit(() -> {
+                ParseHtml parseHtml = new ParseHtml();
+                parseHtml.readNews();
+            });
+        }
+    }
 }

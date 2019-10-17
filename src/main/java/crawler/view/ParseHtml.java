@@ -9,6 +9,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.IOException;
 import java.sql.Timestamp;
 
 /**
@@ -99,7 +100,7 @@ public class ParseHtml {
     }
 
     /**
-     * 根据url在document里筛选出title、content，然后给News对象赋4个值，并返回.
+     * 根据url在document里筛选出title、content.
      *
      * @param document  doc对象
      * @param url       链接属性
@@ -142,15 +143,7 @@ public class ParseHtml {
         String html = new UrlToHtml(url).parse();
         if (html != null) {
             Document document = Jsoup.parse(html);
-            String time = getTime(document);
-            boolean indexPage = true;
-            if (!time.equals("")) {
-                indexPage = false;
-                Timestamp timestamp = parseTime(time);
-                News news = getNews(document, url, timestamp);
-                newsDao.addNews(news);
-
-            }
+            boolean indexPage = addNewsByTime(url, document);
             if (indexPage) {
                 if (url.matches("(.*)finance.sina(.*)")) {
                     selectUrl(document, "article", "data-open-url", "");
@@ -188,5 +181,39 @@ public class ParseHtml {
             }
         }
     }
+
+    /**
+     * 只拿新闻，不解析链接
+     */
+    public void readNews() {
+        String url = NewsDao.processLink();
+        while (url == null) {
+            url = NewsDao.processLink();
+        }
+        Document document = null;
+        try {
+            document = Jsoup.connect(url).get();
+            addNewsByTime(url, document);
+        } catch (
+                IOException e) {
+            e.printStackTrace();
+        }
+        readNews();
+    }
+
+    /**
+     * 根据时间判断是否为索引页面,不是就添加新闻
+     */
+    private boolean addNewsByTime(String url, Document document) {
+        String time = getTime(document);
+        if (!time.equals("")) {
+            Timestamp timestamp = parseTime(time);
+            News news = getNews(document, url, timestamp);
+            newsDao.addNews(news);
+            return false;
+        }
+        return true;
+    }
+
 
 }

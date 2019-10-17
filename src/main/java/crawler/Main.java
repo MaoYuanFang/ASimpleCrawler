@@ -8,7 +8,7 @@ public class Main {
 
     public static void main(String[] args) {
 
-        new Crawler(20).start();
+        new Crawler(20).justRead();
 
     }
 }
