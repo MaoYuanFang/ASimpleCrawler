@@ -1,9 +1,17 @@
 package crawler.dao;
 
+import org.apache.http.HttpHost;
 import org.apache.ibatis.session.SqlSession;
+import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.common.xcontent.XContentType;
 
+import java.io.IOException;
+import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Map;
 
 /**
  * 数据库访问.
@@ -11,16 +19,20 @@ import java.util.List;
 public class NewsDao {
 
     private static final Object LOCK = new Object();
+    private static RestHighLevelClient client = new RestHighLevelClient(
+            RestClient.builder(
+                    new HttpHost("localhost", 9200, "http"),
+                    new HttpHost("localhost", 9201, "http")));
 
     /**
-     * 新闻添加到库，添加前查询同名标题.
+     * 新闻添加到库，添加前查询同名标题,添加成功后再添加到搜索引擎库.
      *
-     * @param news 新闻实体
+     * @param news 新闻
      */
     public synchronized void addNews(News news) {
         SqlSession sqlSession = MybatisUtil.getSqlSession();
         try {
-            if (sqlSession.selectList("findBy_Title",  news.getTitle()).size() == 0) {
+            if (sqlSession.selectList("findBy_Title", news.getTitle()).size() == 0) {
                 sqlSession.insert("News.news_add", news);
                 sqlSession.commit();
             }
@@ -29,6 +41,7 @@ public class NewsDao {
             sqlSession.rollback();
         } finally {
             MybatisUtil.closeSqlSession();
+            addToElasticsearch(news);
         }
     }
 
@@ -81,15 +94,25 @@ public class NewsDao {
         }
     }
 
-    public List<News> findAll() {
-        SqlSession sqlSession = MybatisUtil.getSqlSession();
+    /**
+     * 添加到搜索引擎库.
+     *
+     * @param news 新闻
+     */
+    private void addToElasticsearch(News news) {
+        IndexRequest request = new IndexRequest("news");
+        Map<String, Object> data = new HashMap<>();
+        data.put("id", news.getId());
+        data.put("title", news.getTitle());
+        String content = news.getContent();
+        data.put("content", content.length() > 20 ? content.substring(0, 20) : content);
+        data.put("date", new Date(news.getDate().getTime()));
+        data.put("url", news.getUrl());
+        request.source(data, XContentType.JSON);
         try {
-            return sqlSession.selectList("News.all_news");
-        } catch (Exception e) {
+            client.index(request, RequestOptions.DEFAULT);
+        } catch (IOException e) {
             e.printStackTrace();
-            return null;
-        } finally {
-            MybatisUtil.closeSqlSession();
         }
     }
 
