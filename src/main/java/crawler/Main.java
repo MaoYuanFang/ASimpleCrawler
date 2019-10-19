@@ -23,7 +23,7 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
 
-        //new Crawler(20).start();
+        new Crawler(20).start();
         //new Crawler(20).justRead();    //链接太多就只用jsoup读新闻，不使用htmlunit解析链接
 
 
