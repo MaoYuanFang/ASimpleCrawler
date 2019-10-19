@@ -12,7 +12,7 @@ jsoup等非异步框架直接解析获得的资源不齐全，可以考虑在链
 
 新闻主体只主要提取“.cn”类。“.com.cn”类的电脑端页面的content属性名较多，所以不做细处理。
 
-## 使用前需要先启动mysql和elasticsearch,并使用flyway:migrate新建数据库
+## 使用前需要先启动mysql和elasticsearch,并使用命令mvn flyway:migrate新建数据库
 docker命令：本次测试便不再使用-v实现持久化
 <br>
 docker run --name mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=sl2147151 -d mysql:5.7.27
