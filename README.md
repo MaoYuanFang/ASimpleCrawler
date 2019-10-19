@@ -14,6 +14,8 @@ jsoup等非异步框架直接解析获得的资源不齐全，可以考虑在链
 
 ## 使用前需要先启动mysql和elasticsearch
 docker命令：本次测试便不再使用-v实现持久化
+<br>
 docker run --name mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=sl2147151 -d mysql:5.7.27
+<br>
 docker run -d --name elasticsearch  -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" elasticsearch:7.4.0
 
