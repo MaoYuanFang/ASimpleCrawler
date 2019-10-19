@@ -73,11 +73,16 @@ public class News {
     }
 
     public Timestamp getDate() {
-        return date;
+        if (date != null) {
+            return (Timestamp) date.clone();
+        }
+        return null;
     }
 
     public void setDate(Timestamp date) {
-        this.date = date;
+        if (date != null) {
+            this.date = (Timestamp) date.clone();
+        }
     }
 
     public String getUrl() {
@@ -89,19 +94,29 @@ public class News {
     }
 
     public Timestamp getCreated_date() {
-        return created_date;
+        if (created_date != null) {
+            return (Timestamp) created_date.clone();
+        }
+        return null;
     }
 
     public void setCreated_date(Timestamp created_date) {
-        this.created_date = created_date;
+        if (created_date != null) {
+            this.created_date = (Timestamp) created_date.clone();
+        }
     }
 
     public Timestamp getModified_date() {
-        return modified_date;
+        if (modified_date != null) {
+            return (Timestamp) modified_date.clone();
+        }
+        return null;
     }
 
     public void setModified_date(Timestamp modified_date) {
-        this.modified_date = modified_date;
+        if (modified_date != null) {
+            this.modified_date = (Timestamp) modified_date.clone();
+        }
     }
 
     public int getNews_type() {

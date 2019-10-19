@@ -1,6 +1,7 @@
 package crawler;
 
 
+import crawler.dao.News;
 import org.apache.http.HttpHost;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
@@ -13,6 +14,7 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 
 public class Main {
 
@@ -21,16 +23,19 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
 
-        new Crawler(20).start();
+        //new Crawler(20).start();
         //new Crawler(20).justRead();    //链接太多就只用jsoup读新闻，不使用htmlunit解析链接
 
-        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+
+        News news = new News();
+        news.setDate(null);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
         while (true) {
             System.out.println("输入搜索关键字");
             String keyword = reader.readLine();
-            if (keyword.equals("退出")) {
+            if ("退出".equals(keyword)) {
                 System.out.println("再次输入\"确认\"");
-                if (reader.readLine().equals("确认")) {
+                if ("确认".equals(reader.readLine())) {
                     System.out.println("已退出搜索");
                     break;
                 }
